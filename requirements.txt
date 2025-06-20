@@ -1,0 +1,8 @@
+google-genai
+langchain_community
+langchain_text_splitters
+langchain_chroma
+gradio
+pypdf
+langchain_google_genai
+python-dotenv
