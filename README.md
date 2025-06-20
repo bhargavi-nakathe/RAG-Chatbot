@@ -1,6 +1,6 @@
 # RAG-Chatbot
-# Chatbot
-A chatbot where it  help you by answering questions on Artificial Intelligence, Machine Learning, and Deep Learning by Oswald Campesato.
+
+Its a chatbot where it  help you by answering questions on Artificial Intelligence, Machine Learning, and Deep Learning by Oswald Campesato.
 # RAG-Based Chatbot with Google Gemini API 🚀
 
 This project is a Retrieval-Augmented Generation (RAG) chatbot that provides accurate and context-based responses by retrieving relevant knowledge from a local document database. Unlike standard LLMs that rely solely on their internal knowledge, this chatbot uses **ChromaDB** for semantic search and **Google Gemini 2.0 Flash** for response generation, ensuring responses are grounded in your data.
@@ -33,6 +33,10 @@ This project is a Retrieval-Augmented Generation (RAG) chatbot that provides acc
 2. Create a `.env` file with your `GEMINI_API_KEY`
 3. Run the script: `python app.py`
 4. Start chatting!
+
+### 📸 Demo
+
+![Chatbot Screenshot]("D:\buildbot\chatbot.png")
 
 
 
