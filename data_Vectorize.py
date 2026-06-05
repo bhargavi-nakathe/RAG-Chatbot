@@ -17,7 +17,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 # initiate the embeddings model using the LangChain wrapper
 embeddings_model = GoogleGenerativeAIEmbeddings(
-    model="models/embedding-001",
+    model="models/embedding-04",
     google_api_key=api_key  # Replace with your API key
 )
 
