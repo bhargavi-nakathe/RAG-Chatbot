@@ -6,3 +6,5 @@ gradio
 pypdf
 langchain_google_genai
 python-dotenv
+streamlit
+langchain_openai

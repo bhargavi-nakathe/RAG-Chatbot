@@ -15,14 +15,14 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 # Replace OpenAI embeddings with Google embeddings
 embeddings_model = GoogleGenerativeAIEmbeddings(
-    model="models/embedding-001",
+    model="models/embedding-04",
     google_api_key=api_key  
 )
 
 # Replace ChatOpenAI with ChatGoogleGenerativeAI
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
-    temperature=0.5,
+    temperature=0.7,   # Slightly increased temperature to let the AI be more fluid and expressive
     google_api_key=api_key
 )
 
@@ -33,8 +33,9 @@ vector_store = Chroma(
     persist_directory=CHROMA_PATH, 
 )
 
-# Set up the vectorstore to be the retriever
-num_results = 20
+# --- CHANGED THIS VALUE ---
+# 6 to 8 chunks of 1000 characters provides the perfect amount of context
+num_results = 7
 retriever = vector_store.as_retriever(search_kwargs={'k': num_results})
 
 # call this function for every message added to the chatbot
@@ -43,41 +44,36 @@ def stream_response(message, history):
     # retrieve the relevant chunks based on the question asked
     docs = retriever.invoke(message)
 
-    # DEBUG: Print retrieved documents
-    print("🔍 RETRIEVED CHUNKS:")
-    for i, doc in enumerate(docs, 1):
-        print(f"\n--- Chunk {i} ---\n{doc.page_content}\n")
-
-    # add all the chunks to 'knowledge'
     knowledge = ""
-
     for doc in docs:
-        knowledge += doc.page_content+"\n\n"
-
+        knowledge += doc.page_content + "\n\n"
 
     # make the call to the LLM (including prompt)
     if message is not None:
 
         partial_message = ""
 
+        # --- REWRITTEN PROMPT ---
+        # Removed the restrictive "I'm sorry" catch-all so the AI can use general knowledge smoothly.
         rag_prompt = f"""
-        You are a helpful AI assistant that answers questions using the provided information in the "Knowledge" section below.
+        You are an expert AI companion specializing in Artificial Intelligence, Machine Learning, and Deep Learning based on the textbook context provided below.
 
-        - If the answer is clearly present in the knowledge, respond using that.
-        - If the answer is not found, try your best to answer using general knowledge.
-        - If someone greets you with "hi" or "hello", reply: "Hello, I am a chatbot assistant."
-        - If someone asks "In what ways can you assist me?", reply: "I can help you by answering questions on Artificial Intelligence, Machine Learning, and Deep Learning by Oswald Campesato."
-        - If you're unsure about the answer, say: "I'm sorry, I couldn't find the answer based on the information I have."
+        INSTRUCTIONS:
+        1. Use the "Reference Knowledge" section below as your primary source to answer the user's question.
+        2. Do not just copy and paste text verbatim. Explain, rephrase, and elaborate on the concepts naturally.
+        3. If the specific details aren't fully covered in the Reference Knowledge, seamlessly use your general AI/ML training knowledge to fill in the gaps and provide a complete, smart answer.
+        4. Standard greetings like "hi" or "hello" should always be answered with: "Hello, I am a chatbot assistant."
+        5. If asked "In what ways can you assist me?", always reply: "I can help you by answering questions on Artificial Intelligence, Machine Learning, and Deep Learning by Oswald Campesato."
+
+        Conversation history: 
+        {history}
+
+        Reference Knowledge from the document: 
+        {knowledge}
 
         Question: {message}
-
-        Conversation history: {history}
-
-        The knowledge: {knowledge}
-
+        Answer:
         """
-
-        #print(rag_prompt)
 
         # stream the response to the Gradio App
         for response in llm.stream(rag_prompt):
@@ -85,11 +81,10 @@ def stream_response(message, history):
             yield partial_message
 
 # initiate the Gradio app
-chatbot = gr.ChatInterface(stream_response, textbox=gr.Textbox(placeholder="Send to the LLM...",
-    container=False,
-    autoscroll=True,
-    scale=7),
+chatbot = gr.ChatInterface(
+    stream_response, 
+    textbox=gr.Textbox(placeholder="Ask me anything about AI, ML, or Deep Learning...", container=False, autoscroll=True, scale=7)
 )
 
-# launch the Gradio app
-chatbot.launch(share=True)
+if __name__ == "__main__":
+    chatbot.launch(share=True)
